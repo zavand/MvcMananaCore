@@ -22,16 +22,16 @@ namespace Zavand.MvcMananaCore
         {
             m.SetupModel(c, r);
         }
-        public virtual IActionResult RedirectToAction<TRoute>(IBaseRoute currentRoute, object extraParams = null)
+        public virtual IActionResult RedirectToAction<TRoute>(IBaseRoute currentRoute, object extraParams = null, Action<IBaseRoute> action = null)
             where TRoute : BaseRoute, new()
         {
             var r = new TRoute();
-            return RedirectToAction(currentRoute, r, extraParams);
+            return RedirectToAction(currentRoute, r, extraParams, action);
         }
 
-        public virtual IActionResult RedirectToAction(IBaseRoute currentRoute, IBaseRoute r, object extraParams = null)
+        public virtual IActionResult RedirectToAction(IBaseRoute currentRoute, IBaseRoute r, object extraParams = null, Action<IBaseRoute> action = null)
         {
-            var url = Url.RouteUrl(currentRoute, r, extraParams);
+            var url = Url.RouteUrl(currentRoute, r, extraParams, action);
             if (!String.IsNullOrEmpty(url))
                 return Redirect(url);
             return Redirect("~/");
