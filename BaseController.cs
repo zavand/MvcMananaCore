@@ -22,11 +22,12 @@ namespace Zavand.MvcMananaCore
         {
             m.SetupModel(c, r);
         }
-        public virtual IActionResult RedirectToAction<TRoute>(IBaseRoute currentRoute, object extraParams = null, Action<IBaseRoute> action = null)
-            where TRoute : BaseRoute, new()
+
+        public virtual IActionResult RedirectToAction<TRoute>(IBaseRoute currentRoute, object extraParams = null, Action<TRoute> action = null)
+            where TRoute : IBaseRoute, new()
         {
             var r = new TRoute();
-            return RedirectToAction(currentRoute, r, extraParams, action);
+            return RedirectToAction(currentRoute, r, extraParams, q => action?.Invoke((TRoute)q));
         }
 
         public virtual IActionResult RedirectToAction(IBaseRoute currentRoute, IBaseRoute r, object extraParams = null, Action<IBaseRoute> action = null)
@@ -36,6 +37,14 @@ namespace Zavand.MvcMananaCore
                 return Redirect(url);
             return Redirect("~/");
         }
+
+//        public virtual IActionResult RedirectToAction(IBaseRoute currentRoute, IBaseRoute r, object extraParams = null, Action<BaseRoute> action = null)
+//        {
+//            var url = Url.RouteUrl(currentRoute, r, extraParams, action);
+//            if (!String.IsNullOrEmpty(url))
+//                return Redirect(url);
+//            return Redirect("~/");
+//        }
     }
 
     public interface IBaseModel

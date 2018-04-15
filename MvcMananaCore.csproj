@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>Zavand.MvcMananaCore</AssemblyName>
     <RootNamespace>Zavand.MvcMananaCore</RootNamespace>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
