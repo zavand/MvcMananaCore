@@ -263,7 +263,7 @@ namespace Zavand.MvcMananaCore
             Controller = r.Controller;
             Action = r.Action;
 
-            if (r is IPageableOptional o2 && this is IPageableOptional o1)
+            if (r is IPageableRoute o2 && this is IPageableRoute o1)
             {
                 o1.Page = o2.Page;
                 o1.PageSize = o2.PageSize;

@@ -5,4 +5,8 @@
         int? Page { get; set; }
         int? PageSize { get; set; }
     }
+
+    public interface IPageableRoute:IBaseRoute,IPageableOptional
+    {
+    }
 }
