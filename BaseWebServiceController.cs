@@ -4,6 +4,7 @@ namespace Zavand.MvcMananaCore
 {
     public class BaseWebServiceController : BaseController
     {
-        protected JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore};
+//        protected object _jsonSerializerSettings = null;
+//        protected JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore};
     }
 }
