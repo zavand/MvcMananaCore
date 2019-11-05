@@ -95,9 +95,23 @@ namespace Zavand.MvcMananaCore
             var r = new T();
             if (isLocalizationSupported)
             {
-                routes.MapRoute(r.GetNameLocalized(), r.GetUrlLocalized(), r.GetDefaults(), r.GetConstraintsLocalized()/*, r.GetNamespaces()*/);
+                if (!String.IsNullOrEmpty(r.Area))
+                {
+                    routes.MapAreaRoute(r.GetNameLocalized(), r.Area, r.GetUrlLocalized(), r.GetDefaults(), r.GetConstraintsLocalized()/*, r.GetNamespaces()*/);
+                }
+                else
+                {
+                    routes.MapRoute(r.GetNameLocalized(), r.GetUrlLocalized(), r.GetDefaults(), r.GetConstraintsLocalized()/*, r.GetNamespaces()*/);
+                }
             }
-            routes.MapRoute(r.GetName(), r.GetUrl(), r.GetDefaults(), r.GetConstraints()/*, r.GetNamespaces()*/);
+            if (!String.IsNullOrEmpty(r.Area))
+            {
+                routes.MapAreaRoute(r.GetName(), r.Area, r.GetUrl(), r.GetDefaults(), r.GetConstraints()/*, r.GetNamespaces()*/);
+            }
+            else
+            {
+                routes.MapRoute(r.GetName(), r.GetUrl(), r.GetDefaults(), r.GetConstraints()/*, r.GetNamespaces()*/);
+            }
         }
         //        public static void MapRoute<T>(this RouteCollection routes, bool isLocalizationSupported) where T : IBaseRoute, new()
         //        {
