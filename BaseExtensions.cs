@@ -98,10 +98,28 @@ namespace Zavand.MvcMananaCore
                 if (!String.IsNullOrEmpty(r.Area))
                 {
                     routes.MapAreaRoute(r.GetNameLocalized(), r.Area, r.GetUrlLocalized(), r.GetDefaults(), r.GetConstraintsLocalized()/*, r.GetNamespaces()*/);
+                    var upl = r.GetLocalizedUrlPerLocale();
+                    if (upl != null)
+                    {
+                        foreach (var key in upl.Keys)
+                        {
+                            var url = upl[key];
+                            routes.MapAreaRoute(r.GetNameLocalized()+$"-{key}", r.Area, url, r.GetDefaults(), r.GetConstraintsLocalized()/*, r.GetNamespaces()*/);
+                        }
+                    }
                 }
                 else
                 {
                     routes.MapRoute(r.GetNameLocalized(), r.GetUrlLocalized(), r.GetDefaults(), r.GetConstraintsLocalized()/*, r.GetNamespaces()*/);
+                    var upl = r.GetLocalizedUrlPerLocale();
+                    if (upl != null)
+                    {
+                        foreach (var key in upl.Keys)
+                        {
+                            var url = upl[key];
+                            routes.MapRoute(r.GetNameLocalized()+$"-{key}", url, r.GetDefaults(), r.GetConstraintsLocalized()/*, r.GetNamespaces()*/);
+                        }
+                    }
                 }
             }
             if (!String.IsNullOrEmpty(r.Area))
@@ -158,11 +176,29 @@ namespace Zavand.MvcMananaCore
                 {
                     rd.Remove("Area");
                 }
+                string routeName = null;
                 if (String.IsNullOrEmpty(r.Locale))
                 {
                     rd.Remove("Locale");
                 }
-
+                else
+                {
+                    // Try to get localized URL for specific locale
+                    // In example example below two urls point to the same action but looks very different based on used locale:
+                    // /en/my-account
+                    // /ru/моя-учётная-запись
+                    // /рус/моя-учётная-запись
+                    // /русский/моя-учётная-запись
+                    var upl = r.GetLocalizedUrlPerLocale();
+                    if (upl != null)
+                    {
+                        if (upl.ContainsKey(r.Locale))
+                        {
+                            routeName = r.GetNameLocalized()+$"-{r.Locale}";
+                        }
+                    }
+                }
+                
                 if (extraParams != null)
                 {
                     var extraParamsDictionary = new RouteValueDictionary(extraParams);
@@ -175,7 +211,11 @@ namespace Zavand.MvcMananaCore
                     }
                 }
 
-                var routeName = String.IsNullOrEmpty(r.Locale) ? r.GetName() : r.GetNameLocalized();
+                if (String.IsNullOrEmpty(routeName))
+                {
+                    routeName = String.IsNullOrEmpty(r.Locale) ? r.GetName() : r.GetNameLocalized();
+                }
+                
                 return u.RouteUrl(
                     routeName,
                     rd

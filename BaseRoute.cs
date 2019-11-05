@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Zavand.MvcMananaCore
 {
@@ -250,6 +251,11 @@ namespace Zavand.MvcMananaCore
         public void SetParentRoute(IBaseRoute parentRoute)
         {
             _parentRoute = parentRoute;
+        }
+
+        public virtual Dictionary<string, string> GetLocalizedUrlPerLocale()
+        {
+            return null;
         }
 
         /// <summary>

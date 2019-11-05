@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Zavand.MvcMananaCore
 {
@@ -28,5 +29,16 @@ namespace Zavand.MvcMananaCore
         IBaseRoute Clone();
         IBaseRoute GetParentRoute();
         void SetParentRoute(IBaseRoute parentRoute);
+
+        /// <summary>
+        /// Get localized URL for specific locale
+        /// In example example below two urls point to the same action but looks very different based on used locale:
+        /// /en/my-account
+        /// /ru/моя-учётная-запись
+        /// /рус/моя-учётная-запись
+        /// /русский/моя-учётная-запись
+        /// </summary>
+        /// <returns></returns>
+        Dictionary<String,string> GetLocalizedUrlPerLocale();
     }
 }
