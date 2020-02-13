@@ -15,7 +15,7 @@ namespace Zavand.MvcMananaCore
         string GetUrlLocalized();
         object GetDefaults();
         object GetConstraints();
-        object GetConstraintsLocalized();
+        object GetConstraintsLocalized(string[] locales = null);
         string[] GetNamespaces();
         void FollowContext(IBaseRoute r);
         void MakeTheSameAs(IBaseRoute r);

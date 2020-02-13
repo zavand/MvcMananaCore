@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
@@ -90,34 +91,36 @@ namespace Zavand.MvcMananaCore
             return attributes;
         }
 
-        public static void MapRoute<T>(this IRouteBuilder routes, bool isLocalizationSupported) where T : IBaseRoute, new()
+        public static void MapRoute<T>(this IRouteBuilder routes, string[] locales = null) where T : IBaseRoute, new()
         {
             var r = new T();
+
+            var isLocalizationSupported = locales != null && locales.Any();
             if (isLocalizationSupported)
             {
                 if (!String.IsNullOrEmpty(r.Area))
                 {
-                    routes.MapAreaRoute(r.GetNameLocalized(), r.Area, r.GetUrlLocalized(), r.GetDefaults(), r.GetConstraintsLocalized()/*, r.GetNamespaces()*/);
+                    routes.MapAreaRoute(r.GetNameLocalized(), r.Area, r.GetUrlLocalized(), r.GetDefaults(), r.GetConstraintsLocalized(locales)/*, r.GetNamespaces()*/);
                     var upl = r.GetLocalizedUrlPerLocale();
                     if (upl != null)
                     {
                         foreach (var key in upl.Keys)
                         {
                             var url = upl[key];
-                            routes.MapAreaRoute(r.GetNameLocalized()+$"-{key}", r.Area, url, r.GetDefaults(), r.GetConstraintsLocalized()/*, r.GetNamespaces()*/);
+                            routes.MapAreaRoute(r.GetNameLocalized()+$"-{key}", r.Area, url, r.GetDefaults(), r.GetConstraintsLocalized(locales)/*, r.GetNamespaces()*/);
                         }
                     }
                 }
                 else
                 {
-                    routes.MapRoute(r.GetNameLocalized(), r.GetUrlLocalized(), r.GetDefaults(), r.GetConstraintsLocalized()/*, r.GetNamespaces()*/);
+                    routes.MapRoute(r.GetNameLocalized(), r.GetUrlLocalized(), r.GetDefaults(), r.GetConstraintsLocalized(locales)/*, r.GetNamespaces()*/);
                     var upl = r.GetLocalizedUrlPerLocale();
                     if (upl != null)
                     {
                         foreach (var key in upl.Keys)
                         {
                             var url = upl[key];
-                            routes.MapRoute(r.GetNameLocalized()+$"-{key}", url, r.GetDefaults(), r.GetConstraintsLocalized()/*, r.GetNamespaces()*/);
+                            routes.MapRoute(r.GetNameLocalized()+$"-{key}", url, r.GetDefaults(), r.GetConstraintsLocalized(locales)/*, r.GetNamespaces()*/);
                         }
                     }
                 }

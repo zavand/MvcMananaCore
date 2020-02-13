@@ -190,7 +190,7 @@ namespace Zavand.MvcMananaCore
             return null;
         }
 
-        public virtual object GetConstraintsLocalized()
+        public virtual object GetConstraintsLocalized(string[] locales = null)
         {
             return null;
         }
