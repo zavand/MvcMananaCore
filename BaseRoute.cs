@@ -266,9 +266,6 @@ namespace Zavand.MvcMananaCore
         public virtual void MakeTheSameAs(IBaseRoute r)
         {
             Locale = r.Locale;
-            Area = r.Area;
-            Controller = r.Controller;
-            Action = r.Action;
 
             if (r is IPageableRoute o2 && this is IPageableRoute o1)
             {
