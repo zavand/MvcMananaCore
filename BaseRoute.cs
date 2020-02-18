@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
+    
 namespace Zavand.MvcMananaCore
 {
     public class BaseRoute : IBaseRoute
@@ -18,6 +19,32 @@ namespace Zavand.MvcMananaCore
 
         private IBaseRoute _parentRoute;
 
+        public virtual string GetRouteLocale()
+        {
+            return "";
+        }
+
+        public virtual IBaseRoute CreateLocalizedRoute(string routeLocale)
+        {
+            return this;
+        }
+
+        public virtual string[] GetSupportedRouteLocales()
+        {
+            return new string[0];
+        }
+
+        public virtual string GetDefaultRouteLocale()
+        {
+            return String.Empty;
+        }
+
+        protected T GetLocalizedValue<T>(string routeLocale, T value)
+        {
+            var thisRouteLocale = GetRouteLocale();
+            return thisRouteLocale == routeLocale ? value : !GetSupportedRouteLocales().Contains(thisRouteLocale) && GetDefaultRouteLocale() == routeLocale ? value : default;
+        }
+        
         public enum UrlProtocol
         {
             /// <summary>
@@ -93,7 +120,7 @@ namespace Zavand.MvcMananaCore
         }
         public virtual string GetName()
         {
-            return  String.Format("Route_{0}_{1}_{2}",Area,Controller,Action);
+            return $"Route_{Area}_{Controller}_{Action}";
         }
 
         public virtual string GetNameLocalized()
@@ -113,18 +140,10 @@ namespace Zavand.MvcMananaCore
                 a = Action;
             }
 
-            var urlAction = GetUrlAction();
-            if (!String.IsNullOrEmpty(urlAction))
-                a = urlAction;
-
             if (String.IsNullOrEmpty(DefaultControllerName) || Controller != DefaultControllerName || (!IsActionUnique && !String.IsNullOrEmpty(a)))
             {
                 c = Controller;
             }
-
-            var urlController = GetUrlController();
-            if (!String.IsNullOrEmpty(urlController))
-                c = urlController;
 
             if (!string.IsNullOrEmpty(Area))
                 url = Area;
@@ -144,24 +163,6 @@ namespace Zavand.MvcMananaCore
             }
 
             return url;
-        }
-
-        /// <summary>
-        /// Allows to customize how controller looks in URL
-        /// </summary>
-        /// <returns></returns>
-        public virtual string GetUrlController()
-        {
-            return String.Empty;
-        }
-
-        /// <summary>
-        /// Allows to customize how action looks in URL
-        /// </summary>
-        /// <returns></returns>
-        public virtual string GetUrlAction()
-        {
-            return String.Empty;
         }
 
         public virtual string GetUrlLocalized()

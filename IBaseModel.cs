@@ -1,7 +1,7 @@
 ﻿namespace Zavand.MvcMananaCore
 {
     public interface IBaseModel<out TRoute>
-        where TRoute : BaseRoute
+        where TRoute : IBaseRoute
     {
         TRoute GetRoute();
     }

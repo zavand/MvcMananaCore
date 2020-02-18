@@ -1,7 +1,7 @@
 ﻿namespace Zavand.MvcMananaCore
 {
     public class BaseModel<TRoute, TController> : IBaseModel<TRoute>
-        where TRoute : BaseRoute
+        where TRoute : IBaseRoute
         where TController : BaseController
     {
         private TController Controller { get; set; }

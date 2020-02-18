@@ -7,7 +7,7 @@ namespace Zavand.MvcMananaCore
     {
         public TModel GetModel<TModel, TRoute, TController>(TRoute r, TController c)
             where TModel : BaseModel<TRoute, TController>, new()
-            where TRoute : BaseRoute
+            where TRoute : IBaseRoute
             where TController : BaseController
         {
             var m = new TModel();
@@ -17,7 +17,7 @@ namespace Zavand.MvcMananaCore
 
         public void SetupModel<TModel, TRoute, TController>(TModel m, TRoute r, TController c)
             where TModel : BaseModel<TRoute, TController>, new()
-            where TRoute : BaseRoute
+            where TRoute : IBaseRoute
             where TController : BaseController
         {
             m.SetupModel(c, r);
@@ -37,13 +37,5 @@ namespace Zavand.MvcMananaCore
                 return Redirect(url);
             return Redirect("~/");
         }
-
-//        public virtual IActionResult RedirectToAction(IBaseRoute currentRoute, IBaseRoute r, object extraParams = null, Action<BaseRoute> action = null)
-//        {
-//            var url = Url.RouteUrl(currentRoute, r, extraParams, action);
-//            if (!String.IsNullOrEmpty(url))
-//                return Redirect(url);
-//            return Redirect("~/");
-//        }
     }
 }
