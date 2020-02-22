@@ -38,12 +38,6 @@ namespace Zavand.MvcMananaCore
         {
             return String.Empty;
         }
-
-        protected T GetLocalizedValue<T>(string routeLocale, T value)
-        {
-            var thisRouteLocale = GetRouteLocale();
-            return thisRouteLocale == routeLocale ? value : !GetSupportedRouteLocales().Contains(thisRouteLocale) && GetDefaultRouteLocale() == routeLocale ? value : default;
-        }
         
         public enum UrlProtocol
         {
