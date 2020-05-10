@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Zavand.MvcMananaCore
 {
@@ -6,15 +7,16 @@ namespace Zavand.MvcMananaCore
         where TRoute : IBaseRoute
     {
         TRoute GetRoute();
-        
+        IUrlHelper GetUrlHelper();
+
         /// <summary>
         /// Call this method inside view and layout to restore CultureInfo and make localization work.
         /// async/await switches culture to default en-US
-        /// Some details here: 
+        /// Some details here:
         /// https://stackoverflow.com/questions/30662668/keep-currentculture-in-async-await
         /// </summary>
         void RestoreCultureAfterAsyncAwait();
-        
+
         CultureInfo SavedCurrentCultureBeforeAsyncAwait { get; set; }
     }
 }
