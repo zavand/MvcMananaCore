@@ -12,14 +12,37 @@ namespace Zavand.MvcMananaCore
 {
     public static class BaseExtensions
     {
-        public static IHtmlContent ActionLink<T>(this IHtmlHelper helper, string linkText, IBaseRoute currentRoute, T r, object htmlAttributes = null, object extraParams = null, bool skipFollowContext=false) where T : IBaseRoute
+        public static IHtmlContent ActionLink<T>(this IHtmlHelper helper, string linkText, IBaseRoute currentRoute, T r, object htmlAttributes = null, Action<T> postRouting = null, object extraParams = null, bool skipFollowContext=false) where T : IBaseRoute
         {
-            var uh = new UrlHelper(helper.ViewContext);
-            var url = uh.RouteUrl(currentRoute, r, extraParams,skipFollowContext:skipFollowContext);
-
-            return new HtmlString(String.Format("<a href=\"{0}\"{2}>{1}</a>", url, linkText, GetAttributesString(htmlAttributes)));
+            return helper.ActionLink(linkText, currentRoute, null, r, htmlAttributes, postRouting, extraParams, skipFollowContext);
         }
-        
+
+        public static IHtmlContent ActionLink<T>(this IHtmlHelper helper, string linkText, IBaseRoute currentRoute, IUrlHelper urlHelper, T r, object htmlAttributes = null, Action<T> postRouting = null, object extraParams = null, bool skipFollowContext = false)
+            where T : IBaseRoute
+        {
+            if (urlHelper == null)
+                urlHelper = new UrlHelper(helper.ViewContext);
+            return ActionLink(urlHelper,linkText,currentRoute,r,htmlAttributes,postRouting,extraParams,skipFollowContext);
+        }
+
+        public static IHtmlContent ActionLinkClone<T>(this IHtmlHelper helper, string linkText, T currentRoute, IUrlHelper urlHelper, Action<T> action, object htmlAttributes = null)
+            where T : IBaseRoute
+        {
+            var r = currentRoute.Clone(action);
+            return ActionLink(urlHelper, linkText, currentRoute, r, htmlAttributes, skipFollowContext: true);
+        }
+
+        public static IHtmlContent ActionLink<T>(IUrlHelper urlHelper, string linkText, IBaseRoute currentRoute, T r, object htmlAttributes = null, Action<T> postRouting = null, object extraParams = null, bool skipFollowContext = false) where T : IBaseRoute
+        {
+            var url = urlHelper.RouteUrl(currentRoute, r, extraParams, postRouting, skipFollowContext);
+            return new HtmlString(GetAnchor(url, linkText, htmlAttributes));
+        }
+
+        public static string GetAnchor(string url, string linkText, object htmlAttributes = null)
+        {
+            return String.Format("<a href=\"{0}\"{2}>{1}</a>", url, linkText, GetAttributesString(htmlAttributes));
+        }
+
         public static IHtmlContent ActionLinkCloneGeneral(this IHtmlHelper helper, string linkText, IBaseRoute currentRoute, Action<IBaseRoute> action, object htmlAttributes = null)
         {
             var r = currentRoute.Clone(action);
@@ -32,20 +55,20 @@ namespace Zavand.MvcMananaCore
                 skipFollowContext:true
             );
         }
-        
-                public static IHtmlContent ActionLinkClone<T>(this IHtmlHelper helper, string linkText, T currentRoute, Action<T> action, object htmlAttributes = null) where T : IBaseRoute
-                {
-                    var r = currentRoute.Clone(action);
-                    return ActionLink(
-                        helper,
-                        linkText,
-                        currentRoute,
-                        r,
-                        htmlAttributes,
-                        skipFollowContext:true
-                    );
-                }
-                
+
+        public static IHtmlContent ActionLinkClone<T>(this IHtmlHelper helper, string linkText, T currentRoute, Action<T> action, object htmlAttributes = null) where T : IBaseRoute
+        {
+            var r = currentRoute.Clone(action);
+            return ActionLink(
+                helper,
+                linkText,
+                currentRoute,
+                r,
+                htmlAttributes,
+                skipFollowContext:true
+            );
+        }
+
         static string GetAttributesString(object htmlAttributes)
         {
             var attributes = "";
@@ -100,9 +123,9 @@ namespace Zavand.MvcMananaCore
         {
             if (!skipFollowContext && currentRoute != null)
                 r.FollowContext(currentRoute);
-            
+
             postRouting?.Invoke(r);
-            
+
             IBaseRoute finalRoute = r;
 
             var currentRouteLocale = currentRoute?.GetRouteLocale();
@@ -118,7 +141,7 @@ namespace Zavand.MvcMananaCore
 
                 currentRouteLocale = ci.Name;
             }
-            
+
             if (newRouteLocale != currentRouteLocale && !String.IsNullOrEmpty(currentRouteLocale))
             {
                 finalRoute = finalRoute.CreateLocalizedRoute(currentRouteLocale);
@@ -140,7 +163,7 @@ namespace Zavand.MvcMananaCore
                 {
                     rd.Remove("Locale");
                 }
-                
+
                 if (extraParams != null)
                 {
                     var extraParamsDictionary = new RouteValueDictionary(extraParams);
@@ -154,7 +177,7 @@ namespace Zavand.MvcMananaCore
                 }
 
                 var routeName = String.IsNullOrEmpty(finalRoute.Locale) ? finalRoute.GetName() : finalRoute.GetNameLocalized();
-                
+
                 return u.RouteUrl(
                     routeName,
                     rd
@@ -238,5 +261,41 @@ namespace Zavand.MvcMananaCore
 //        {
 //            return htmlHelper.TextBoxFor(expression, new RouteValueDictionary(htmlAttributes) { { "type", "file" } });
 //        }
+
+        public static void MapControllerRoute<TRoute>(this IEndpointRouteBuilder endpoints, string[] locales = null) where TRoute:IBaseRoute, new()
+        {
+            var r = new TRoute();
+
+            var isLocalizationSupported = locales != null && locales.Any();
+            if (isLocalizationSupported)
+            {
+                if (!String.IsNullOrEmpty(r.Area))
+                {
+                    endpoints.MapAreaControllerRoute(r.GetNameLocalized(), r.Area, r.GetUrlLocalized(), r.GetDefaults(), r.GetConstraintsLocalized(locales));
+                }
+                else
+                {
+                    endpoints.MapControllerRoute(r.GetNameLocalized(), r.GetUrlLocalized(), r.GetDefaults(), r.GetConstraintsLocalized(locales));
+                }
+            }
+
+            if (!String.IsNullOrEmpty(r.Area))
+            {
+                endpoints.MapAreaControllerRoute(r.GetName(), r.Area, r.GetUrl(), r.GetDefaults(), r.GetConstraints());
+            }
+            else
+            {
+                endpoints.MapControllerRoute(r.GetName(), r.GetUrl(), r.GetDefaults(), r.GetConstraints());
+            }
+        }
+    }
+
+    public static class LinkGeneratorExtensions
+    {
+        public static string GetPathByRoute<TRoute>(this LinkGenerator linkGenerator, TRoute r, IBaseRoute currentRoute = null) where TRoute:IBaseRoute
+        {
+            var url = linkGenerator.GetPathByRouteValues(String.IsNullOrEmpty(r.Locale) ? r.GetName() : r.GetNameLocalized(), r);
+            return url;
+        }
     }
 }
