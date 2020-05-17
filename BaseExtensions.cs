@@ -126,26 +126,7 @@ namespace Zavand.MvcMananaCore
 
             postRouting?.Invoke(r);
 
-            IBaseRoute finalRoute = r;
-
-            var currentRouteLocale = currentRoute?.GetRouteLocale();
-            var newRouteLocale = finalRoute.GetRouteLocale();
-
-            if (String.IsNullOrEmpty(currentRouteLocale))
-            {
-                var ci = System.Threading.Thread.CurrentThread.CurrentCulture;
-                while (!ci.IsNeutralCulture)
-                {
-                    ci = ci.Parent;
-                }
-
-                currentRouteLocale = ci.Name;
-            }
-
-            if (newRouteLocale != currentRouteLocale && !String.IsNullOrEmpty(currentRouteLocale))
-            {
-                finalRoute = finalRoute.CreateLocalizedRoute(currentRouteLocale);
-            }
+            var finalRoute = GetFinalRoute(r,currentRoute);
 
             var domain = finalRoute.GetDomain();
 
@@ -288,14 +269,38 @@ namespace Zavand.MvcMananaCore
                 endpoints.MapControllerRoute(r.GetName(), r.GetUrl(), r.GetDefaults(), r.GetConstraints());
             }
         }
-    }
 
-    public static class LinkGeneratorExtensions
-    {
         public static string GetPathByRoute<TRoute>(this LinkGenerator linkGenerator, TRoute r, IBaseRoute currentRoute = null) where TRoute:IBaseRoute
         {
-            var url = linkGenerator.GetPathByRouteValues(String.IsNullOrEmpty(r.Locale) ? r.GetName() : r.GetNameLocalized(), r);
+            var finalRoute = GetFinalRoute(r,currentRoute);
+            var url = linkGenerator.GetPathByRouteValues(String.IsNullOrEmpty(finalRoute.Locale) ? finalRoute.GetName() : finalRoute.GetNameLocalized(), finalRoute);
             return url;
+        }
+
+        public static IBaseRoute GetFinalRoute<TRoute>(TRoute r, IBaseRoute currentRoute = null) where TRoute:IBaseRoute
+        {
+            IBaseRoute finalRoute = r;
+
+            var currentRouteLocale = currentRoute?.GetRouteLocale();
+            var newRouteLocale = finalRoute.GetRouteLocale();
+
+            if (String.IsNullOrEmpty(currentRouteLocale))
+            {
+                var ci = System.Threading.Thread.CurrentThread.CurrentCulture;
+                while (!ci.IsNeutralCulture)
+                {
+                    ci = ci.Parent;
+                }
+
+                currentRouteLocale = ci.Name;
+            }
+
+            if (newRouteLocale != currentRouteLocale && !String.IsNullOrEmpty(currentRouteLocale))
+            {
+                finalRoute = finalRoute.CreateLocalizedRoute(currentRouteLocale);
+            }
+
+            return finalRoute;
         }
     }
 }
