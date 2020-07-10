@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
@@ -301,6 +303,42 @@ namespace Zavand.MvcMananaCore
             }
 
             return finalRoute;
+        }
+
+        public static IBaseRoute GetCurrentRoute(this HttpContext context)
+        {
+            var ep = context.GetEndpoint();
+            var rd = context.GetRouteData();
+            var cad = ep.Metadata.OfType<ControllerActionDescriptor>().FirstOrDefault();
+            var routeName = ep.Metadata.OfType<RouteNameMetadata>().FirstOrDefault();
+
+            var currentRoute = cad.Parameters
+                    .Where(m => typeof(IBaseRoute).IsAssignableFrom(m.ParameterType))
+                    .Select(m=>(IBaseRoute)Activator.CreateInstance(m.ParameterType))
+                    .FirstOrDefault()
+                ;
+
+            if(currentRoute!=null)
+            {
+                var t = currentRoute.GetType();
+                var pp = t.GetProperties()
+                    .Where(m => m.CanWrite)
+                    .ToArray();
+
+                // Update current route with values from route data
+                foreach (var value in rd.Values)
+                {
+                    ReflectionExtensions.SetValue(pp, value.Key,currentRoute,value.Value.ToString());
+                }
+
+                // Update current route with values from query string
+                foreach (var k in context.Request.Query.Keys)
+                {
+                    ReflectionExtensions.SetValue(pp, k,currentRoute,context.Request.Query[k].Select(m=>m));
+                }
+            }
+
+            return currentRoute;
         }
     }
 }
