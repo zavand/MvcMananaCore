@@ -15,8 +15,6 @@ namespace Zavand.MvcMananaCore
 
         public virtual void SetupModel(TController controller, TRoute route)
         {
-            // Route = route;
-            // Controller = controller;
             SetupModelAsync(controller, route).Wait();
         }
 
