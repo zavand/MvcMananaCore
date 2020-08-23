@@ -1,5 +1,6 @@
 ﻿using System;
-using IActionResult = Microsoft.AspNetCore.Mvc.IActionResult;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Zavand.MvcMananaCore
 {
@@ -12,6 +13,16 @@ namespace Zavand.MvcMananaCore
         {
             var m = new TModel();
             m.SetupModel(c, r);
+            return m;
+        }
+
+        public async Task<TModel> GetModelAsync<TModel, TRoute, TController>(TRoute r, TController c)
+            where TModel : BaseModel<TRoute, TController>, new()
+            where TRoute : IBaseRoute
+            where TController : BaseController
+        {
+            var m = new TModel();
+            await m.SetupModelAsync(c, r);
             return m;
         }
 

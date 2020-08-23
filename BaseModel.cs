@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Zavand.MvcMananaCore
@@ -14,8 +15,16 @@ namespace Zavand.MvcMananaCore
 
         public virtual void SetupModel(TController controller, TRoute route)
         {
+            // Route = route;
+            // Controller = controller;
+            SetupModelAsync(controller, route).Wait();
+        }
+
+        public virtual Task SetupModelAsync(TController controller, TRoute route)
+        {
             Route = route;
             Controller = controller;
+            return Task.CompletedTask;
         }
 
         public TController GetController()
