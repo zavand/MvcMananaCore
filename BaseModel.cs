@@ -13,6 +13,11 @@ namespace Zavand.MvcMananaCore
         private TRoute Route { get; set; }
         public CultureInfo Culture { get; set; }
 
+        protected BaseModel()
+        {
+            Culture = new CultureInfo("en-US");
+        }
+
         public virtual void SetupModel(TController controller, TRoute route)
         {
             SetupModelAsync(controller, route).Wait();
