@@ -340,5 +340,14 @@ namespace Zavand.MvcMananaCore
 
             return currentRoute;
         }
+
+        public static int GetLastPage<TRoute>(this IPageableModel<TRoute> m)
+            where TRoute : IBaseRoute
+        {
+            if (m.PageSize == 0)
+                return 0;
+
+            return (int) m.Total / m.PageSize + ((int) m.Total % m.PageSize == 0 ? 0 : 1);
+        }
     }
 }
