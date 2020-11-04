@@ -215,9 +215,11 @@ namespace Zavand.MvcMananaCore
             if (newRoute == null)
                 newRoute = currentRoute.Clone();
             //            var url = uh.RouteUrl(currentRoute, newRoute);
-            newRoute.FollowContext(currentRoute);
 
-            var f = h.BeginRouteForm(String.IsNullOrEmpty(newRoute.Locale)? newRoute.GetName(): newRoute.GetNameLocalized(), newRoute,FormMethod.Post,null,htmlAttributes);
+            newRoute.FollowContext(currentRoute);
+            var finalRoute = GetFinalRoute(newRoute,currentRoute);
+
+            var f = h.BeginRouteForm(String.IsNullOrEmpty(finalRoute.Locale) ? finalRoute.GetName() : finalRoute.GetNameLocalized(), finalRoute, FormMethod.Post, null, htmlAttributes);
             return f;
 //            var start = String.Format("<form action=\"{0}\" method=\"{1}\" enctype=\"multipart/form-data\"{2}>", url, formMethod.ToString().ToUpper(), GetAttributesString(htmlAttributes));
 //            var end = "</form>";
@@ -230,14 +232,14 @@ namespace Zavand.MvcMananaCore
 //            return h.BeginForm(currectRoute.Action, currectRoute.Controller, currectRoute, FormMethod.Post, null, new { enctype = "multipart/form-data" });
 //        }
 
-        public static MvcForm BeginFormFileUpload(this IHtmlHelper h, IBaseRoute currectRoute, IBaseRoute newRoute = null, FormMethod formMethod = FormMethod.Post, object htmlAttributes = null)
+        public static MvcForm BeginFormFileUpload(this IHtmlHelper h, IBaseRoute currentRoute, IBaseRoute newRoute = null, FormMethod formMethod = FormMethod.Post, object htmlAttributes = null)
         {
             var rv=new RouteValueDictionary(htmlAttributes);
             if (!rv.ContainsKey("enctype"))
             {
                 rv.Add("enctype", "multipart/form-data");
             }
-            return h.BeginForm(currectRoute, newRoute, htmlAttributes: rv);
+            return h.BeginForm(currentRoute, newRoute, htmlAttributes: rv);
         }
 
 //        public static MvcHtmlString FileUploadFor<TModel, TProperty>(this IHtmlHelper<TModel> htmlHelper, System.Linq.Expressions.Expression<Func<TModel, TProperty>> expression, object htmlAttributes = null)
