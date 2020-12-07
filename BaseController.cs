@@ -4,7 +4,20 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Zavand.MvcMananaCore
 {
-    public class BaseController: Microsoft.AspNetCore.Mvc.Controller
+    // public interface IBaseController
+    // {
+    //     TModel GetModel<TModel, TRoute, TController>(TRoute r, TController c)
+    //         where TModel : IBaseModel<TRoute>, new()
+    //         where TRoute : IBaseRoute
+    //         where TController : IBaseController;
+    //
+    //     Task<TModel> GetModelAsync<TModel, TRoute, TController>(TRoute r, TController c)
+    //         where TModel : IBaseModel<TRoute>, new()
+    //         where TRoute : IBaseRoute
+    //         where TController : IBaseController;
+    // }
+
+    public class BaseController: Microsoft.AspNetCore.Mvc.Controller//, IBaseController
     {
         public TModel GetModel<TModel, TRoute, TController>(TRoute r, TController c)
             where TModel : BaseModel<TRoute, TController>, new()

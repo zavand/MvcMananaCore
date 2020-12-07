@@ -63,5 +63,15 @@ namespace Zavand.MvcMananaCore
         {
             Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = Culture;
         }
+
+        public void SetRoute(object route)
+        {
+            Route = (TRoute) route;
+        }
+
+        public virtual void SetUrlHelper(IUrlHelper urlHelper)
+        {
+
+        }
     }
 }

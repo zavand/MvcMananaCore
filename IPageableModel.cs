@@ -5,4 +5,17 @@
     {
         ulong Total { get; set; }
     }
+
+    public static class PageableModelExtensions
+    {
+        public static void CopyTo<TRoute>(this IPageableModel<TRoute> mFrom, IPageableModel<TRoute> mTo) where TRoute : IBaseRoute
+        {
+            if (mFrom == null || mTo == null)
+                return;
+
+            ((IPageable) mFrom).CopyTo(mTo);
+
+            mTo.Total = mFrom.Total;
+        }
+    }
 }
