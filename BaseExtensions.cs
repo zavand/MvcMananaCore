@@ -14,12 +14,12 @@ namespace Zavand.MvcMananaCore
 {
     public static class BaseExtensions
     {
-        public static IHtmlContent ActionLink<T>(this IHtmlHelper helper, string linkText, IBaseRoute currentRoute, T r, object htmlAttributes = null, Action<T> postRouting = null, object extraParams = null, bool skipFollowContext=false) where T : IBaseRoute
+        public static IHtmlContent ActionLink<T>(this IHtmlHelper helper, string linkText, IBaseRoute currentRoute, T r, object htmlAttributes = null, Action<IBaseRoute> postRouting = null, object extraParams = null, bool skipFollowContext=false) where T : IBaseRoute
         {
             return helper.ActionLink(linkText, currentRoute, null, r, htmlAttributes, postRouting, extraParams, skipFollowContext);
         }
 
-        public static IHtmlContent ActionLink<T>(this IHtmlHelper helper, string linkText, IBaseRoute currentRoute, IUrlHelper urlHelper, T r, object htmlAttributes = null, Action<T> postRouting = null, object extraParams = null, bool skipFollowContext = false)
+        public static IHtmlContent ActionLink<T>(this IHtmlHelper helper, string linkText, IBaseRoute currentRoute, IUrlHelper urlHelper, T r, object htmlAttributes = null, Action<IBaseRoute> postRouting = null, object extraParams = null, bool skipFollowContext = false)
             where T : IBaseRoute
         {
             if (urlHelper == null)
@@ -34,7 +34,7 @@ namespace Zavand.MvcMananaCore
             return ActionLink(urlHelper, linkText, currentRoute, r, htmlAttributes, skipFollowContext: true);
         }
 
-        public static IHtmlContent ActionLink<T>(IUrlHelper urlHelper, string linkText, IBaseRoute currentRoute, T r, object htmlAttributes = null, Action<T> postRouting = null, object extraParams = null, bool skipFollowContext = false) where T : IBaseRoute
+        public static IHtmlContent ActionLink<T>(IUrlHelper urlHelper, string linkText, IBaseRoute currentRoute, T r, object htmlAttributes = null, Action<IBaseRoute> postRouting = null, object extraParams = null, bool skipFollowContext = false) where T : IBaseRoute
         {
             var url = urlHelper.RouteUrl(currentRoute, r, extraParams, postRouting, skipFollowContext);
             return new HtmlString(GetAnchor(url, linkText, htmlAttributes));
@@ -121,14 +121,14 @@ namespace Zavand.MvcMananaCore
             return u.RouteUrl(currentRoute, r);
         }
 
-        public static String RouteUrl<T>(this IUrlHelper u, IBaseRoute currentRoute, T r, object extraParams = null, Action<T> postRouting = null, bool skipFollowContext=false) where T : IBaseRoute
+        public static String RouteUrl<T>(this IUrlHelper u, IBaseRoute currentRoute, T r, object extraParams = null, Action<IBaseRoute> postRouting = null, bool skipFollowContext=false) where T : IBaseRoute
         {
             if (!skipFollowContext && currentRoute != null)
                 r.FollowContext(currentRoute);
 
-            postRouting?.Invoke(r);
-
             var finalRoute = GetFinalRoute(r,currentRoute);
+
+            postRouting?.Invoke(finalRoute);
 
             var domain = finalRoute.GetDomain();
 
