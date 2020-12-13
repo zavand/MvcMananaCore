@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
@@ -166,8 +167,8 @@ namespace Zavand.MvcMananaCore
                     rd
                     );
 
-                if (!String.IsNullOrEmpty(r.GetAnchor()))
-                    url += $"#{r.GetAnchor()}";
+                if (!String.IsNullOrEmpty(finalRoute.GetAnchor()))
+                    url += $"#{HttpUtility.UrlEncode(finalRoute.GetAnchor())}";
 
                 return url;
             }
