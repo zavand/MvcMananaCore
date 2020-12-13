@@ -31,5 +31,7 @@ namespace Zavand.MvcMananaCore
         void SetParentRoute(IBaseRoute parentRoute);
         string GetRouteLocale();
         IBaseRoute CreateLocalizedRoute(string routeLocale);
+        string GetAnchor();
+        void SetAnchor(string anchor);
     }
 }

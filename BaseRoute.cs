@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-    
+
 namespace Zavand.MvcMananaCore
 {
     public class BaseRoute : IBaseRoute
@@ -18,6 +17,7 @@ namespace Zavand.MvcMananaCore
         private int _port;
 
         private IBaseRoute _parentRoute;
+        private string _anchor;
 
         public virtual string GetRouteLocale()
         {
@@ -29,6 +29,16 @@ namespace Zavand.MvcMananaCore
             return this;
         }
 
+        public string GetAnchor()
+        {
+            return _anchor;
+        }
+
+        public void SetAnchor(string anchor)
+        {
+            _anchor = anchor;
+        }
+
         public virtual string[] GetSupportedRouteLocales()
         {
             return new string[0];
@@ -38,7 +48,7 @@ namespace Zavand.MvcMananaCore
         {
             return String.Empty;
         }
-        
+
         public enum UrlProtocol
         {
             /// <summary>
@@ -55,7 +65,7 @@ namespace Zavand.MvcMananaCore
         public string Controller { get; set; }
         public string Action { get; set; }
         public string Area { get; set; }
-        
+
         /// <summary>
         /// Default name of controller
         /// If Controller property is equals to DefaultControllerName then it will be avoided in the route url
@@ -69,39 +79,39 @@ namespace Zavand.MvcMananaCore
         protected string DefaultActionName { get; set; }
 
         /// <summary>
-        /// If true then controller name will be excluded from url 
+        /// If true then controller name will be excluded from url
         /// for actions from default controller that are different from default action.
-        /// 
+        ///
         /// Setting that property to tru can cause problem if you have another controller or area
         /// with the same name as non-default action of default controller.
-        /// 
+        ///
         /// Set this property to true if action names for default Controller
         /// is different from another controllers' and areas' names.
-        /// 
+        ///
         /// Compare behaviour:
-        ///      
+        ///
         ///     true                             false
         ///     -------                          -------
         ///     Controller: Default              Controller: Default
-        ///     Action: Index                    Action: Index 
-        ///     Url:                             Url: 
+        ///     Action: Index                    Action: Index
+        ///     Url:                             Url:
         ///     -------                          -------
         ///     Controller: Default              Controller: Default
         ///     Action: Photo                    Action: Photo
         ///    *Url: Photo                       Url: Default/Photo
-        /// 
+        ///
         /// Setting the property to true will cause problem if you have controller with name Photo:
-        /// 
+        ///
         ///     -------                          -------
         ///     Controller: Photo                Controller: Photo
-        ///     Action: Index                    Action: Index 
+        ///     Action: Index                    Action: Index
         ///    *Url: Photo                       Url: Photo
-        ///     
-        /// As you can see urls are the same for following controller->action 
+        ///
+        /// As you can see urls are the same for following controller->action
         /// (marked with asterisk in the previous samples):
         ///     Default->Photo
         ///     Photo->Index
-        /// 
+        ///
         /// The same situation with area names
         /// </summary>
         protected bool IsActionUnique { get; set; }
@@ -199,7 +209,7 @@ namespace Zavand.MvcMananaCore
         /// FollowContext is used when route2 is generated from route1.
         /// For example you need to generate link to Page2 and put it on Page1.
         /// In that case route to Page2 may follow context of route of Page1.
-        /// If route to Page1 includes locale information ru-RU, most likely you will want 
+        /// If route to Page1 includes locale information ru-RU, most likely you will want
         /// to include the same locale when you generate link to Page2.
         /// </summary>
         /// <param name="r"></param>

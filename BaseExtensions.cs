@@ -161,10 +161,15 @@ namespace Zavand.MvcMananaCore
 
                 var routeName = String.IsNullOrEmpty(finalRoute.Locale) ? finalRoute.GetName() : finalRoute.GetNameLocalized();
 
-                return u.RouteUrl(
+                var url= u.RouteUrl(
                     routeName,
                     rd
                     );
+
+                if (!String.IsNullOrEmpty(r.GetAnchor()))
+                    url += $"#{r.GetAnchor()}";
+
+                return url;
             }
 
             // ------------------------
