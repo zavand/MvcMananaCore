@@ -215,7 +215,7 @@ namespace Zavand.MvcMananaCore
             return String.Format("{0}://{1}{2}{3}", protocolUrl, domain, porturl, path);
         }
 
-        public static MvcForm BeginForm(this IHtmlHelper h, IBaseRoute currentRoute, IBaseRoute newRoute = null, FormMethod formMethod = FormMethod.Post, object htmlAttributes = null)
+        public static MvcForm BeginForm(this IHtmlHelper h, IBaseRoute currentRoute, IBaseRoute newRoute = null, FormMethod formMethod = FormMethod.Post, object htmlAttributes = null, Action<IBaseRoute> postRouting = null)
         {
 //            var uh = new UrlHelper(h.ViewContext);
             if (newRoute == null)
@@ -224,6 +224,8 @@ namespace Zavand.MvcMananaCore
 
             newRoute.FollowContext(currentRoute);
             var finalRoute = GetFinalRoute(newRoute,currentRoute);
+
+            postRouting?.Invoke(finalRoute);
 
             var f = h.BeginRouteForm(String.IsNullOrEmpty(finalRoute.Locale) ? finalRoute.GetName() : finalRoute.GetNameLocalized(), finalRoute, FormMethod.Post, null, htmlAttributes);
             return f;
