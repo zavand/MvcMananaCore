@@ -35,6 +35,11 @@ namespace Zavand.MvcMananaCore
             return Controller;
         }
 
+        public void SetController(TController c)
+        {
+            Controller = c;
+        }
+
         public TRoute GetRoute()
         {
             return Route;
