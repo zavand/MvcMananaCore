@@ -27,6 +27,8 @@ namespace Zavand.MvcMananaCore
         {
             Route = route;
             Controller = controller;
+            route.SetQueryParams(controller.HttpContext.Request.Query);
+
             return Task.CompletedTask;
         }
 

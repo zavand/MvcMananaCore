@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Web;
+using Microsoft.AspNetCore.Http;
 
 namespace Zavand.MvcMananaCore
 {
@@ -18,10 +22,104 @@ namespace Zavand.MvcMananaCore
 
         private IBaseRoute _parentRoute;
         private string _anchor;
+        // private IQueryCollection _queryParams = new QueryCollection();
+        private readonly Dictionary<string, List<string>> _queryParams = new Dictionary<string, List<string>>();
+        private readonly HashSet<string> _queryParamsWithoutValue = new HashSet<string>();
 
+        public virtual void AddQueryParam(string name, string value)
+        {
+            if(!_queryParams.ContainsKey(name))
+                _queryParams.Add(name, new List<string>());
+            _queryParams[name].Add(value);
+        }
+
+        public virtual void SetQueryParam(string name, string value)
+        {
+            if(!_queryParams.ContainsKey(name))
+                _queryParams.Add(name, new List<string>());
+            else
+                _queryParams[name].Clear();
+            _queryParams[name].Add(value);
+        }
+
+        public void RemoveQueryParam(string name)
+        {
+            if (_queryParams.ContainsKey(name))
+                _queryParams.Remove(name);
+        }
+
+        public virtual string GetQueryParam(string name)
+        {
+            if (!_queryParams.ContainsKey(name))
+                return null;
+
+            return String.Join(",", _queryParams[name]);
+        }
+
+        public virtual string[] GetQueryParams(string name)
+        {
+            if (!_queryParams.ContainsKey(name))
+                return new string[0];
+
+            return _queryParams[name].ToArray();
+        }
+
+        public void AddQueryParamWithoutValue(string name)
+        {
+            _queryParamsWithoutValue.Add(name);
+            ;
+        }
+
+        public void RemoveQueryParamWithoutValue(string name)
+        {
+            _queryParamsWithoutValue.Remove(name);
+        }
+
+        public bool GetQueryParamWithoutValue(string name)
+        {
+            return _queryParamsWithoutValue.Contains(name);
+        }
+
+        public virtual void SetQueryParams(IQueryCollection q)
+        {
+            foreach (var k in q.Keys)
+            {
+                var kDecoded = HttpUtility.UrlDecode(k);
+                foreach (var v in q[k])
+                {
+                    if(!String.IsNullOrEmpty(v))
+                        SetQueryParam(kDecoded, v);
+                    else
+                        AddQueryParamWithoutValue(kDecoded);
+                }
+            }
+        }
+
+        public virtual string GetQueryString()
+        {
+            return String.Join("&", _queryParams
+                .SelectMany(m => m.Value
+                    .Where(v => !String.IsNullOrEmpty(v))
+                    .Select(a => $"{HttpUtility.UrlEncode(m.Key)}={HttpUtility.UrlEncode(a)}")
+                )
+                .Union(_queryParamsWithoutValue)
+            );
+        }
+
+        private string _routeLocale = "";
         public virtual string GetRouteLocale()
         {
-            return "";
+            return _routeLocale;
+        }
+
+        public virtual void SetRouteLocale(string routeLocale)
+        {
+            _routeLocale = routeLocale;
+        }
+
+        public virtual string[] GetAllRouteLocales()
+        {
+            return null;
         }
 
         public virtual IBaseRoute CreateLocalizedRoute(string routeLocale)
@@ -124,7 +222,15 @@ namespace Zavand.MvcMananaCore
         }
         public virtual string GetName()
         {
-            return $"Route_{Area}_{Controller}_{Action}";
+            return $"Route_{Area}_{Controller}_{Action}_rl[{_routeLocale}]";
+        }
+
+        public string GetRouteLocaleFromRouteName(string routeName)
+        {
+            var m = Regex.Match(routeName, @"rl\[(?<routeLocale>.+)\]");
+            return m.Success
+                ? m.Groups["routeLocale"].Value
+                : "";
         }
 
         public virtual string GetNameLocalized()
@@ -270,6 +376,9 @@ namespace Zavand.MvcMananaCore
         public virtual void MakeTheSameAs(IBaseRoute r)
         {
             Locale = r.Locale;
+            SetRouteLocale(r.GetRouteLocale());
+
+            SetAnchor(r.GetAnchor());
 
             if (r is IPageableRoute o2 && this is IPageableRoute o1)
             {

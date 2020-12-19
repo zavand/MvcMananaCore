@@ -167,6 +167,15 @@ namespace Zavand.MvcMananaCore
                     rd
                     );
 
+                var queryParams = finalRoute.GetQueryString();
+                if (!String.IsNullOrEmpty(queryParams))
+                {
+                    if (url.Contains('?'))
+                        url += "&" + queryParams; //HttpUtility.UrlEncode(queryParams);
+                    else
+                        url += "?" + queryParams;//HttpUtility.UrlEncode(queryParams);
+                }
+
                 if (!String.IsNullOrEmpty(finalRoute.GetAnchor()))
                     url += $"#{HttpUtility.UrlEncode(finalRoute.GetAnchor())}";
 
@@ -257,28 +266,46 @@ namespace Zavand.MvcMananaCore
 
         public static void MapControllerRoute<TRoute>(this IEndpointRouteBuilder endpoints, string[] locales = null) where TRoute:IBaseRoute, new()
         {
+            var isLocalizationSupported = locales != null && locales.Any();
+
             var r = new TRoute();
 
-            var isLocalizationSupported = locales != null && locales.Any();
-            if (isLocalizationSupported)
+            var routeLocales = r.GetAllRouteLocales();
+
+            // Make sure route is registered even it doesn't have any route locale
+            if (routeLocales == null || !routeLocales.Any())
+                routeLocales = new[] {""};
+
+            var registeredUrls = new List<string>();
+            var registeredNames = new List<string>();
+            foreach (var routeLocale in routeLocales)
             {
+                r.SetRouteLocale(routeLocale);
+
+                if (isLocalizationSupported)
+                {
+                    registeredUrls.Add(r.GetUrlLocalized());
+                    registeredNames.Add(r.GetNameLocalized());
+                    if (!String.IsNullOrEmpty(r.Area))
+                    {
+                        endpoints.MapAreaControllerRoute(r.GetNameLocalized(), r.Area, r.GetUrlLocalized(), r.GetDefaults(), r.GetConstraintsLocalized(locales));
+                    }
+                    else
+                    {
+                        endpoints.MapControllerRoute(r.GetNameLocalized(), r.GetUrlLocalized(), r.GetDefaults(), r.GetConstraintsLocalized(locales));
+                    }
+                }
+
+                registeredUrls.Add(r.GetUrl());
+                registeredNames.Add(r.GetName());
                 if (!String.IsNullOrEmpty(r.Area))
                 {
-                    endpoints.MapAreaControllerRoute(r.GetNameLocalized(), r.Area, r.GetUrlLocalized(), r.GetDefaults(), r.GetConstraintsLocalized(locales));
+                    endpoints.MapAreaControllerRoute(r.GetName(), r.Area, r.GetUrl(), r.GetDefaults(), r.GetConstraints());
                 }
                 else
                 {
-                    endpoints.MapControllerRoute(r.GetNameLocalized(), r.GetUrlLocalized(), r.GetDefaults(), r.GetConstraintsLocalized(locales));
+                    endpoints.MapControllerRoute(r.GetName(), r.GetUrl(), r.GetDefaults(), r.GetConstraints());
                 }
-            }
-
-            if (!String.IsNullOrEmpty(r.Area))
-            {
-                endpoints.MapAreaControllerRoute(r.GetName(), r.Area, r.GetUrl(), r.GetDefaults(), r.GetConstraints());
-            }
-            else
-            {
-                endpoints.MapControllerRoute(r.GetName(), r.GetUrl(), r.GetDefaults(), r.GetConstraints());
             }
         }
 
