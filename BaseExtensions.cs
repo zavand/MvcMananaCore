@@ -336,7 +336,7 @@ namespace Zavand.MvcMananaCore
 
             if (newRouteLocale != currentRouteLocale && !String.IsNullOrEmpty(currentRouteLocale))
             {
-                finalRoute = finalRoute.CreateLocalizedRoute(currentRouteLocale);
+                finalRoute.SetRouteLocale(currentRouteLocale);
             }
 
             return finalRoute;
