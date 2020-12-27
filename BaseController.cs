@@ -47,16 +47,16 @@ namespace Zavand.MvcMananaCore
             m.SetupModel(c, r);
         }
 
-        public virtual IActionResult RedirectToAction<TRoute>(IBaseRoute currentRoute, object extraParams = null, Action<TRoute> action = null)
+        public virtual IActionResult RedirectToAction<TRoute>(IBaseRoute currentRoute, object extraParams = null, Action<TRoute> action = null, bool skipFollowContext = false)
             where TRoute : IBaseRoute, new()
         {
             var r = new TRoute();
-            return RedirectToAction(currentRoute, r, extraParams, q => action?.Invoke((TRoute)q));
+            return RedirectToAction(currentRoute, r, extraParams, q => action?.Invoke((TRoute)q), skipFollowContext);
         }
 
-        public virtual IActionResult RedirectToAction(IBaseRoute currentRoute, IBaseRoute r, object extraParams = null, Action<IBaseRoute> action = null)
+        public virtual IActionResult RedirectToAction(IBaseRoute currentRoute, IBaseRoute r, object extraParams = null, Action<IBaseRoute> action = null, bool skipFollowContext = false)
         {
-            var url = Url.RouteUrl(currentRoute, r, extraParams, action);
+            var url = Url.RouteUrl(currentRoute, r, extraParams, action, skipFollowContext);
             if (!String.IsNullOrEmpty(url))
                 return Redirect(url);
             return Redirect("~/");

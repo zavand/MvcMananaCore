@@ -87,8 +87,13 @@ namespace Zavand.MvcMananaCore
                 var kDecoded = HttpUtility.UrlDecode(k);
                 foreach (var v in q[k])
                 {
-                    if(!String.IsNullOrEmpty(v))
-                        SetQueryParam(kDecoded, v);
+                    if (!String.IsNullOrEmpty(v))
+                    {
+                        if (q[k].Count == 1)
+                            SetQueryParam(kDecoded, v);
+                        else
+                            AddQueryParam(kDecoded, v);
+                    }
                     else
                         AddQueryParamWithoutValue(kDecoded);
                 }

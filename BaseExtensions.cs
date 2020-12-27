@@ -124,10 +124,10 @@ namespace Zavand.MvcMananaCore
 
         public static String RouteUrl<T>(this IUrlHelper u, IBaseRoute currentRoute, T r, object extraParams = null, Action<IBaseRoute> postRouting = null, bool skipFollowContext=false) where T : IBaseRoute
         {
-            if (!skipFollowContext && currentRoute != null)
-                r.FollowContext(currentRoute);
-
             var finalRoute = GetFinalRoute(r,currentRoute);
+
+            if (!skipFollowContext && currentRoute != null)
+                finalRoute.FollowContext(currentRoute);
 
             postRouting?.Invoke(finalRoute);
 
@@ -259,13 +259,10 @@ namespace Zavand.MvcMananaCore
             return h.BeginForm(currentRoute, newRoute, htmlAttributes: rv);
         }
 
-//        public static MvcHtmlString FileUploadFor<TModel, TProperty>(this IHtmlHelper<TModel> htmlHelper, System.Linq.Expressions.Expression<Func<TModel, TProperty>> expression, object htmlAttributes = null)
-//        {
-//            return htmlHelper.TextBoxFor(expression, new RouteValueDictionary(htmlAttributes) { { "type", "file" } });
-//        }
-
-        public static void MapControllerRoute<TRoute>(this IEndpointRouteBuilder endpoints, string[] locales = null) where TRoute:IBaseRoute, new()
+        public static void MapControllerRoute<TRoute>(this IEndpointRouteBuilder endpoints, string[] locales = null, IRouteManager routeManager = null) where TRoute:IBaseRoute, new()
         {
+            routeManager?.AddRoute(typeof(TRoute));
+
             var isLocalizationSupported = locales != null && locales.Any();
 
             var r = new TRoute();
