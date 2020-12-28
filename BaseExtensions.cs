@@ -116,13 +116,13 @@ namespace Zavand.MvcMananaCore
             }
         }
 
-        public static String RouteUrlClone<T>(this IUrlHelper u, T currentRoute, Action<T> postRouting = null) where T : IBaseRoute
+        public static String RouteUrlClone<T>(this IUrlHelper u, T currentRoute, Action<T> postRouting = null, bool skipFollowContext = false) where T : IBaseRoute
         {
-            var r = currentRoute.Clone(postRouting);
-            return u.RouteUrl(currentRoute, r);
+            var r = (T) currentRoute.Clone();
+            return u.RouteUrl(currentRoute, r, null, postRouting, skipFollowContext);
         }
 
-        public static String RouteUrl<T>(this IUrlHelper u, IBaseRoute currentRoute, T r, object extraParams = null, Action<IBaseRoute> postRouting = null, bool skipFollowContext=false) where T : IBaseRoute
+        public static String RouteUrl<T>(this IUrlHelper u, IBaseRoute currentRoute, T r, object extraParams = null, Action<T> postRouting = null, bool skipFollowContext=false) where T : IBaseRoute
         {
             var finalRoute = GetFinalRoute(r,currentRoute);
 
@@ -313,9 +313,9 @@ namespace Zavand.MvcMananaCore
             return url;
         }
 
-        public static IBaseRoute GetFinalRoute<TRoute>(TRoute r, IBaseRoute currentRoute = null) where TRoute:IBaseRoute
+        public static TRoute GetFinalRoute<TRoute>(TRoute r, IBaseRoute currentRoute = null) where TRoute:IBaseRoute
         {
-            IBaseRoute finalRoute = r;
+            TRoute finalRoute = r;
 
             var currentRouteLocale = currentRoute?.GetRouteLocale();
             var newRouteLocale = finalRoute.GetRouteLocale();
