@@ -15,12 +15,12 @@ namespace Zavand.MvcMananaCore
 {
     public static class BaseExtensions
     {
-        public static IHtmlContent ActionLink<T>(this IHtmlHelper helper, string linkText, IBaseRoute currentRoute, T r, object htmlAttributes = null, Action<IBaseRoute> postRouting = null, object extraParams = null, bool skipFollowContext=false) where T : IBaseRoute
+        public static IHtmlContent ActionLink<T>(this IHtmlHelper helper, string linkText, IBaseRoute currentRoute, T r, object htmlAttributes = null, Action<T> postRouting = null, object extraParams = null, bool skipFollowContext=false) where T : IBaseRoute
         {
             return helper.ActionLink(linkText, currentRoute, null, r, htmlAttributes, postRouting, extraParams, skipFollowContext);
         }
 
-        public static IHtmlContent ActionLink<T>(this IHtmlHelper helper, string linkText, IBaseRoute currentRoute, IUrlHelper urlHelper, T r, object htmlAttributes = null, Action<IBaseRoute> postRouting = null, object extraParams = null, bool skipFollowContext = false)
+        public static IHtmlContent ActionLink<T>(this IHtmlHelper helper, string linkText, IBaseRoute currentRoute, IUrlHelper urlHelper, T r, object htmlAttributes = null, Action<T> postRouting = null, object extraParams = null, bool skipFollowContext = false)
             where T : IBaseRoute
         {
             if (urlHelper == null)
@@ -35,7 +35,7 @@ namespace Zavand.MvcMananaCore
             return ActionLink(urlHelper, linkText, currentRoute, r, htmlAttributes, skipFollowContext: true);
         }
 
-        public static IHtmlContent ActionLink<T>(IUrlHelper urlHelper, string linkText, IBaseRoute currentRoute, T r, object htmlAttributes = null, Action<IBaseRoute> postRouting = null, object extraParams = null, bool skipFollowContext = false) where T : IBaseRoute
+        public static IHtmlContent ActionLink<T>(IUrlHelper urlHelper, string linkText, IBaseRoute currentRoute, T r, object htmlAttributes = null, Action<T> postRouting = null, object extraParams = null, bool skipFollowContext = false) where T : IBaseRoute
         {
             var url = urlHelper.RouteUrl(currentRoute, r, extraParams, postRouting, skipFollowContext);
             return new HtmlString(GetAnchor(url, linkText, htmlAttributes));
@@ -167,17 +167,20 @@ namespace Zavand.MvcMananaCore
                     rd
                     );
 
-                var queryParams = finalRoute.GetQueryString();
-                if (!String.IsNullOrEmpty(queryParams))
+                if (url != null)
                 {
-                    if (url.Contains('?'))
-                        url += "&" + queryParams; //HttpUtility.UrlEncode(queryParams);
-                    else
-                        url += "?" + queryParams;//HttpUtility.UrlEncode(queryParams);
-                }
+                    var queryParams = finalRoute.GetQueryString();
+                    if (!String.IsNullOrEmpty(queryParams))
+                    {
+                        if (url.Contains('?'))
+                            url += "&" + queryParams; //HttpUtility.UrlEncode(queryParams);
+                        else
+                            url += "?" + queryParams;//HttpUtility.UrlEncode(queryParams);
+                    }
 
-                if (!String.IsNullOrEmpty(finalRoute.GetAnchor()))
-                    url += $"#{HttpUtility.UrlEncode(finalRoute.GetAnchor())}";
+                    if (!String.IsNullOrEmpty(finalRoute.GetAnchor()))
+                        url += $"#{HttpUtility.UrlEncode(finalRoute.GetAnchor())}";
+                }
 
                 return url;
             }
@@ -316,6 +319,9 @@ namespace Zavand.MvcMananaCore
         public static TRoute GetFinalRoute<TRoute>(TRoute r, IBaseRoute currentRoute = null) where TRoute:IBaseRoute
         {
             TRoute finalRoute = r;
+
+            if (!String.IsNullOrEmpty(finalRoute.GetRouteLocale()))
+                return finalRoute;
 
             var currentRouteLocale = currentRoute?.GetRouteLocale();
             var newRouteLocale = finalRoute.GetRouteLocale();
