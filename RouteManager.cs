@@ -46,7 +46,13 @@ namespace Zavand.MvcMananaCore
 
         public IBaseRoute CreateRouteFromUrl(string url, HttpContext httpContext)
         {
-            var uri = new Uri(url);
+            var prefix = "";
+            if (!url.StartsWith("http"))
+                prefix = "http://domain";
+            if (prefix != "" && !url.StartsWith("/"))
+                prefix += "/";
+            Microsoft.AspNetCore.Http.Extensions.UriHelper.FromAbsolute(prefix+url, out var scheme, out var hostString, out var pathString, out var queryString, out var fragmentString);
+
             var routes = new List<IBaseRoute>();
             var selectedEndpoints = new HashSet<string>();
             foreach (var e in _endpointDataSource.Endpoints)
@@ -54,7 +60,7 @@ namespace Zavand.MvcMananaCore
                 try
                 {
                     var name = e.Metadata.OfType<RouteNameMetadata>().FirstOrDefault()?.RouteName;
-                    var rvd = _linkParser.ParsePathByEndpointName(name, uri.AbsolutePath);
+                    var rvd = _linkParser.ParsePathByEndpointName(name, pathString);
                     if (rvd == null) continue;
 
                     // TODO: For some reason there are several endpoints with the same name. Lets filter out extra.
@@ -66,9 +72,9 @@ namespace Zavand.MvcMananaCore
                     ApplyRouteValues(r, rvd);
                     routes.Add(r);
                 }
-                catch (Exception ex)
+                catch
                 {
-                    var a = 0;
+                    // ignored
                 }
             }
 
@@ -89,12 +95,12 @@ namespace Zavand.MvcMananaCore
             }
 
             if (route != null)
-                ApplyRouteParamsFromQueryString(route, uri);
+                ApplyRouteParamsFromQueryString(route);
 
             return route;
         }
 
-        protected virtual void ApplyRouteParamsFromQueryString(IBaseRoute r, Uri uri)
+        protected virtual void ApplyRouteParamsFromQueryString(IBaseRoute r)
         {
 
         }
