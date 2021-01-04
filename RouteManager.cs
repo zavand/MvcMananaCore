@@ -55,6 +55,7 @@ namespace Zavand.MvcMananaCore
 
             var routes = new List<IBaseRoute>();
             var selectedEndpoints = new HashSet<string>();
+            //.OfType<RouteEndpoint>().Where(m=>m.DisplayName.StartsWith("Route:")).OrderBy(m=>m.Order)
             foreach (var e in _endpointDataSource.Endpoints)
             {
                 try
@@ -122,8 +123,17 @@ namespace Zavand.MvcMananaCore
             var properties = r.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             foreach (var p in properties)
             {
-                if(rvd.ContainsKey(p.Name))
-                    p.SetValue(r,Convert.ChangeType(rvd[p.Name], p.PropertyType));
+                if (rvd.ContainsKey(p.Name))
+                {
+                    var v = rvd[p.Name];
+                    var nullableUnderlyingType = Nullable.GetUnderlyingType(p.PropertyType);
+
+                    var nv = Convert.ChangeType(v, nullableUnderlyingType != null
+                        ? nullableUnderlyingType
+                        : p.PropertyType);
+
+                    p.SetValue(r,nv);
+                }
             }
         }
 
