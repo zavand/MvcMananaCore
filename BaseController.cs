@@ -61,5 +61,14 @@ namespace Zavand.MvcMananaCore
                 return Redirect(url);
             return Redirect("~/");
         }
+
+        public virtual IActionResult RedirectToAction<TRoute>(IBaseRoute currentRoute, TRoute r, object extraParams = null, Action<TRoute> action = null, bool skipFollowContext = false)
+            where TRoute : IBaseRoute, new()
+        {
+            var url = Url.RouteUrl(currentRoute, r, extraParams, action, skipFollowContext);
+            if (!String.IsNullOrEmpty(url))
+                return Redirect(url);
+            return Redirect("~/");
+        }
     }
 }
