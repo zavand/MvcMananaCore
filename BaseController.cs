@@ -58,8 +58,8 @@ namespace Zavand.MvcMananaCore
         {
             var url = Url.RouteUrl(currentRoute, r, extraParams, action, skipFollowContext);
             if (!String.IsNullOrEmpty(url))
-                return Redirect(url);
-            return Redirect("~/");
+                return Redirect(TransformRedirectUrl(url));
+            return Redirect(TransformRedirectUrl("~/"));
         }
 
         public virtual IActionResult RedirectToAction<TRoute>(IBaseRoute currentRoute, TRoute r, object extraParams = null, Action<TRoute> action = null, bool skipFollowContext = false)
@@ -67,8 +67,13 @@ namespace Zavand.MvcMananaCore
         {
             var url = Url.RouteUrl(currentRoute, r, extraParams, action, skipFollowContext);
             if (!String.IsNullOrEmpty(url))
-                return Redirect(url);
-            return Redirect("~/");
+                return Redirect(TransformRedirectUrl(url));
+            return Redirect(TransformRedirectUrl("~/"));
+        }
+
+        protected virtual string TransformRedirectUrl(string url)
+        {
+            return url;
         }
     }
 }
