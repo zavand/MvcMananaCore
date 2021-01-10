@@ -227,7 +227,8 @@ namespace Zavand.MvcMananaCore
             return String.Format("{0}://{1}{2}{3}", protocolUrl, domain, porturl, path);
         }
 
-        public static MvcForm BeginForm(this IHtmlHelper h, IBaseRoute currentRoute, IBaseRoute newRoute = null, FormMethod formMethod = FormMethod.Post, object htmlAttributes = null, Action<IBaseRoute> postRouting = null)
+        // TODO: this method doesn't work properly when using query parameters. Needs to use RouteUrl<T>() from current class.
+        public static MvcForm BeginForm(this IHtmlHelper h, IBaseRoute currentRoute, IBaseRoute newRoute = null, FormMethod formMethod = FormMethod.Post, object htmlAttributes = null, Action<IBaseRoute> postRouting = null, IUrlHelper urlHelper = null)
         {
 //            var uh = new UrlHelper(h.ViewContext);
             if (newRoute == null)
@@ -239,7 +240,7 @@ namespace Zavand.MvcMananaCore
 
             postRouting?.Invoke(finalRoute);
 
-            var f = h.BeginRouteForm(String.IsNullOrEmpty(finalRoute.Locale) ? finalRoute.GetName() : finalRoute.GetNameLocalized(), finalRoute, FormMethod.Post, null, htmlAttributes);
+            var f = h.BeginRouteForm(String.IsNullOrEmpty(finalRoute.Locale) ? finalRoute.GetName() : finalRoute.GetNameLocalized(), finalRoute, formMethod, null, htmlAttributes);
             return f;
 //            var start = String.Format("<form action=\"{0}\" method=\"{1}\" enctype=\"multipart/form-data\"{2}>", url, formMethod.ToString().ToUpper(), GetAttributesString(htmlAttributes));
 //            var end = "</form>";
