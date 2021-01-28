@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.AspNetCore.Routing;
 
 namespace Zavand.MvcMananaCore
@@ -227,13 +229,11 @@ namespace Zavand.MvcMananaCore
             return String.Format("{0}://{1}{2}{3}", protocolUrl, domain, porturl, path);
         }
 
-        // TODO: this method doesn't work properly when using query parameters. Needs to use RouteUrl<T>() from current class.
+        [Obsolete("Use version with IUrlHelper and IHtmlGenerator")]
         public static MvcForm BeginForm(this IHtmlHelper h, IBaseRoute currentRoute, IBaseRoute newRoute = null, FormMethod formMethod = FormMethod.Post, object htmlAttributes = null, Action<IBaseRoute> postRouting = null, IUrlHelper urlHelper = null)
         {
-//            var uh = new UrlHelper(h.ViewContext);
             if (newRoute == null)
                 newRoute = currentRoute.Clone();
-            //            var url = uh.RouteUrl(currentRoute, newRoute);
 
             newRoute.FollowContext(currentRoute);
             var finalRoute = GetFinalRoute(newRoute,currentRoute);
@@ -242,17 +242,9 @@ namespace Zavand.MvcMananaCore
 
             var f = h.BeginRouteForm(String.IsNullOrEmpty(finalRoute.Locale) ? finalRoute.GetName() : finalRoute.GetNameLocalized(), finalRoute, formMethod, null, htmlAttributes);
             return f;
-//            var start = String.Format("<form action=\"{0}\" method=\"{1}\" enctype=\"multipart/form-data\"{2}>", url, formMethod.ToString().ToUpper(), GetAttributesString(htmlAttributes));
-//            var end = "</form>";
-//
-//            return new MvcForm(h.ViewContext, htmlEncoder);
         }
 
-//        public static MvcForm BeginFormFileUpload(this IHtmlHelper h, IBaseRoute currectRoute)
-//        {
-//            return h.BeginForm(currectRoute.Action, currectRoute.Controller, currectRoute, FormMethod.Post, null, new { enctype = "multipart/form-data" });
-//        }
-
+        [Obsolete("Use version with IUrlHelper and IHtmlGenerator")]
         public static MvcForm BeginFormFileUpload(this IHtmlHelper h, IBaseRoute currentRoute, IBaseRoute newRoute = null, FormMethod formMethod = FormMethod.Post, object htmlAttributes = null)
         {
             var rv=new RouteValueDictionary(htmlAttributes);
@@ -261,6 +253,49 @@ namespace Zavand.MvcMananaCore
                 rv.Add("enctype", "multipart/form-data");
             }
             return h.BeginForm(currentRoute, newRoute, htmlAttributes: rv);
+        }
+
+        public static MvcForm BeginForm(this IHtmlHelper h,IUrlHelper urlHelper, IHtmlGenerator htmlGenerator, IBaseRoute currentRoute, IBaseRoute newRoute = null, FormMethod formMethod = FormMethod.Post, object htmlAttributes = null, Action<IBaseRoute> postRouting = null)
+        {
+            if (urlHelper == null)
+                urlHelper = new UrlHelper(h.ViewContext);
+
+            if (newRoute == null)
+                newRoute = currentRoute;
+
+            var url = urlHelper.RouteUrl(currentRoute, newRoute, null, postRouting);
+
+            var has = "";
+            if (htmlAttributes != null)
+            {
+                var ha = new RouteValueDictionary(htmlAttributes);
+                has = " " + String.Join(" ", ha.Select(m => $"{m.Key}=\"{m.Value}\""));
+            }
+
+            h.ViewContext.FormContext = new FormContext
+            {
+                CanRenderAtEndOfForm = true
+            };
+
+            if (formMethod != FormMethod.Get)
+            {
+                h.ViewContext.FormContext.EndOfFormContent.Add( htmlGenerator.GenerateAntiforgery(h.ViewContext));
+            }
+
+            h.ViewContext.Writer.Write($"<form action=\"{url}\" method=\"{formMethod.ToString().ToUpper()}\"{has}>");
+
+            return new MvcForm(h.ViewContext, NullHtmlEncoder.Default);
+        }
+
+        public static MvcForm BeginFormFileUpload(this IHtmlHelper h, IUrlHelper urlHelper, IHtmlGenerator htmlGenerator, IBaseRoute currentRoute, IBaseRoute newRoute = null, FormMethod formMethod = FormMethod.Post, object htmlAttributes = null)
+        {
+            var rv = new RouteValueDictionary(htmlAttributes);
+            if (!rv.ContainsKey("enctype"))
+            {
+                rv.Add("enctype", "multipart/form-data");
+            }
+
+            return h.BeginForm(urlHelper, htmlGenerator, currentRoute, newRoute, htmlAttributes: rv);
         }
 
         public static void MapControllerRoute<TRoute>(this IEndpointRouteBuilder endpoints, string[] locales = null, IRouteManager routeManager = null) where TRoute:IBaseRoute, new()
