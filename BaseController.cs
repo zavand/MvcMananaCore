@@ -19,32 +19,26 @@ namespace Zavand.MvcMananaCore
 
     public class BaseController: Microsoft.AspNetCore.Mvc.Controller//, IBaseController
     {
-        public TModel GetModel<TModel, TRoute, TController>(TRoute r, TController c)
+        [Obsolete("Async version must be used")]
+        public virtual TModel GetModel<TModel, TRoute, TController>(TRoute r, TController c)
             where TModel : BaseModel<TRoute, TController>, new()
             where TRoute : IBaseRoute
             where TController : BaseController
         {
-            var m = new TModel();
-            m.SetupModel(c, r);
-            return m;
+            return GetModelAsync<TModel, TRoute, TController>(r,c).Result;
         }
 
-        public async Task<TModel> GetModelAsync<TModel, TRoute, TController>(TRoute r, TController c)
+        public virtual async Task<TModel> GetModelAsync<TModel, TRoute, TController>(TRoute r, TController c)
             where TModel : BaseModel<TRoute, TController>, new()
             where TRoute : IBaseRoute
             where TController : BaseController
         {
             var m = new TModel();
+            m.SetController	(this as TController);
+            m.SetRoute(r);
+            r.SetQueryParams(HttpContext.Request.Query);
             await m.SetupModelAsync(c, r);
             return m;
-        }
-
-        public void SetupModel<TModel, TRoute, TController>(TModel m, TRoute r, TController c)
-            where TModel : BaseModel<TRoute, TController>, new()
-            where TRoute : IBaseRoute
-            where TController : BaseController
-        {
-            m.SetupModel(c, r);
         }
 
         public virtual IActionResult RedirectToAction<TRoute>(IBaseRoute currentRoute, object extraParams = null, Action<TRoute> action = null, bool skipFollowContext = false)

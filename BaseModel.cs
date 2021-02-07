@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -18,16 +19,17 @@ namespace Zavand.MvcMananaCore
             Culture = new CultureInfo("en-US");
         }
 
+        [Obsolete("Model must be prepared in controller")]
         public virtual void SetupModel(TController controller, TRoute route)
         {
             SetupModelAsync(controller, route).Wait();
         }
 
+        [Obsolete("Model must be prepared in controller")]
         public virtual Task SetupModelAsync(TController controller, TRoute route)
         {
             Route = route;
             Controller = controller;
-            route.SetQueryParams(controller.HttpContext.Request.Query);
 
             return Task.CompletedTask;
         }
