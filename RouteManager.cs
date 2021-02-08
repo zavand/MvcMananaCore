@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -35,7 +36,7 @@ namespace Zavand.MvcMananaCore
                     continue;
                 foreach (var routeLocale in routeLocales)
                 {
-                    r.SetRouteLocale(routeLocale);
+                    r.ChangeRouteLocale(routeLocale);
                     if (r.GetName() == routeName || r.GetNameLocalized() == routeName)
                         return r;
                 }
@@ -96,12 +97,40 @@ namespace Zavand.MvcMananaCore
             }
 
             if (route != null)
-                ApplyRouteParamsFromQueryString(route);
+            {
+                var d = new Dictionary<string, HashSet<string>>();
+                var q = queryString.Value;
+                if (!String.IsNullOrEmpty(q))
+                {
+                    q = q.Trim('?');
+                    var pairs = q.Split('&');
+                    foreach (var pair in pairs)
+                    {
+                        var kv = pair.Split('=');
+                        string k = null;
+                        string v = null;
+                        if (kv.Length > 0) k = kv[0];
+                        if (kv.Length > 1) v = kv[1];
+                        if (!String.IsNullOrEmpty(k)) k = HttpUtility.UrlDecode(k);
+                        if (!String.IsNullOrEmpty(v)) v = HttpUtility.UrlDecode(v);
+
+                        if (!String.IsNullOrEmpty(k))
+                        {
+                            if(!d.ContainsKey(k))
+                                d.Add(k,new HashSet<string>());
+
+                            if(!String.IsNullOrEmpty(v))
+                                d[k].Add(v);
+                        }
+                    }
+                }
+                ApplyQueryParamsFromQueryString(route, d);
+            }
 
             return route;
         }
 
-        protected virtual void ApplyRouteParamsFromQueryString(IBaseRoute r)
+        protected virtual void ApplyQueryParamsFromQueryString(IBaseRoute r, Dictionary<string, HashSet<string>> dictionary)
         {
 
         }

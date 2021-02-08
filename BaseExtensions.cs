@@ -316,7 +316,7 @@ namespace Zavand.MvcMananaCore
             var registeredNames = new List<string>();
             foreach (var routeLocale in routeLocales)
             {
-                r.SetRouteLocale(routeLocale);
+                r.ChangeRouteLocale(routeLocale);
 
                 if (isLocalizationSupported)
                 {
@@ -375,7 +375,7 @@ namespace Zavand.MvcMananaCore
 
             if (newRouteLocale != currentRouteLocale && !String.IsNullOrEmpty(currentRouteLocale))
             {
-                finalRoute.SetRouteLocale(currentRouteLocale);
+                finalRoute.ChangeRouteLocale(currentRouteLocale);
             }
 
             return finalRoute;

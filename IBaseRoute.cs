@@ -31,8 +31,9 @@ namespace Zavand.MvcMananaCore
         IBaseRoute GetParentRoute();
         void SetParentRoute(IBaseRoute parentRoute);
         string GetRouteLocale();
-        string GetRouteLocaleFromRouteName(string routeName);
         void SetRouteLocale(string routeLocale);
+        string GetRouteLocaleFromRouteName(string routeName);
+        void ChangeRouteLocale(string routeLocale);
         string[] GetAllRouteLocales();
         string GetAnchor();
         void SetAnchor(string anchor);

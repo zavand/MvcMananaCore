@@ -117,7 +117,12 @@ namespace Zavand.MvcMananaCore
             return _routeLocale;
         }
 
-        public virtual void SetRouteLocale(string routeLocale)
+        public void SetRouteLocale(string routeLocale)
+        {
+            _routeLocale = routeLocale;
+        }
+
+        public virtual void ChangeRouteLocale(string routeLocale)
         {
             var all = GetAllRouteLocales();
             if (all == null)
@@ -381,7 +386,7 @@ namespace Zavand.MvcMananaCore
         public virtual void MakeTheSameAs(IBaseRoute r)
         {
             Locale = r.Locale;
-            SetRouteLocale(r.GetRouteLocale());
+            ChangeRouteLocale(r.GetRouteLocale());
 
             SetAnchor(r.GetAnchor());
 
