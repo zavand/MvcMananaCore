@@ -1,47 +1,18 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Zavand.MvcMananaCore
 {
-    public class BaseModel<TRoute, TController> : IBaseModel<TRoute>
+    public class BaseModel<TRoute> : IBaseModel<TRoute>
         where TRoute : IBaseRoute
-        where TController : BaseController
     {
-        private TController Controller { get; set; }
         private TRoute Route { get; set; }
         public CultureInfo Culture { get; set; }
 
         protected BaseModel()
         {
             Culture = new CultureInfo("en-US");
-        }
-
-        [Obsolete("Model must be prepared in controller")]
-        public virtual void SetupModel(TController controller, TRoute route)
-        {
-            SetupModelAsync(controller, route).Wait();
-        }
-
-        [Obsolete("Model must be prepared in controller")]
-        public virtual Task SetupModelAsync(TController controller, TRoute route)
-        {
-            Route = route;
-            Controller = controller;
-
-            return Task.CompletedTask;
-        }
-
-        public TController GetController()
-        {
-            return Controller;
-        }
-
-        public void SetController(TController c)
-        {
-            Controller = c;
         }
 
         public TRoute GetRoute()
@@ -52,14 +23,6 @@ namespace Zavand.MvcMananaCore
         public virtual IUrlHelper GetUrlHelper()
         {
             return null;
-        }
-
-        public virtual bool IsValid()
-        {
-            return
-                Controller != null &&
-                Controller.ModelState != null &&
-                Controller.ModelState.IsValid;
         }
 
         /// <summary>

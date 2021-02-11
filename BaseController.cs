@@ -19,26 +19,13 @@ namespace Zavand.MvcMananaCore
 
     public class BaseController: Microsoft.AspNetCore.Mvc.Controller//, IBaseController
     {
-        [Obsolete("Async version must be used")]
-        public virtual TModel GetModel<TModel, TRoute, TController>(TRoute r, TController c)
-            where TModel : BaseModel<TRoute, TController>, new()
+        public virtual Task<TModel> PrepareModelBaseAsync<TModel, TRoute>(TModel m, TRoute r)
+            where TModel : IBaseModel<TRoute>
             where TRoute : IBaseRoute
-            where TController : BaseController
         {
-            return GetModelAsync<TModel, TRoute, TController>(r,c).Result;
-        }
-
-        public virtual async Task<TModel> GetModelAsync<TModel, TRoute, TController>(TRoute r, TController c)
-            where TModel : BaseModel<TRoute, TController>, new()
-            where TRoute : IBaseRoute
-            where TController : BaseController
-        {
-            var m = new TModel();
-            m.SetController	(this as TController);
             m.SetRoute(r);
             r.SetQueryParams(HttpContext.Request.Query);
-            await m.SetupModelAsync(c, r);
-            return m;
+            return Task.FromResult(m);
         }
 
         public virtual IActionResult RedirectToAction<TRoute>(IBaseRoute currentRoute, object extraParams = null, Action<TRoute> action = null, bool skipFollowContext = false)
