@@ -287,7 +287,8 @@ namespace Zavand.MvcMananaCore
 
         public virtual string GetUrlLocalized()
         {
-            return "{locale}/" + GetUrl();
+            var url = GetUrl();
+            return "{locale}" + (String.IsNullOrEmpty(url) ? "" : $"/{url}");
         }
 
         public virtual object GetDefaults()
