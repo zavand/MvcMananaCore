@@ -36,7 +36,7 @@ namespace Zavand.MvcMananaCore
                     continue;
                 foreach (var routeLocale in routeLocales)
                 {
-                    r.ChangeRouteLocale(routeLocale);
+                    r.SetRouteLocale(routeLocale);
                     if (r.GetName() == routeName || r.GetNameLocalized() == routeName)
                         return r;
                 }
