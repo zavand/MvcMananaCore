@@ -14,6 +14,7 @@ namespace Zavand.MvcMananaCore
         private readonly EndpointDataSource _endpointDataSource;
         private readonly LinkParser _linkParser;
         protected readonly HashSet<Type> _allRoutes = new HashSet<Type>();
+        protected readonly Dictionary<Type,int[]> _duplicatedRoutes = new();
 
         public RouteManager(EndpointDataSource endpointDataSource, LinkParser linkParser)
         {
@@ -47,6 +48,9 @@ namespace Zavand.MvcMananaCore
 
         public IBaseRoute CreateRouteFromUrl(string url, HttpContext httpContext)
         {
+            if (String.IsNullOrWhiteSpace(url))
+                return null;
+
             var prefix = "";
             if (!url.StartsWith("http"))
                 prefix = "http://domain";
@@ -169,6 +173,22 @@ namespace Zavand.MvcMananaCore
         public virtual void MakeTheSameAs(IBaseRoute rTo, IBaseRoute rFrom)
         {
             rTo.MakeTheSameAs(rFrom);
+        }
+
+        public void AddDuplicatedRoute(Type type, IEnumerable<int> lcids)
+        {
+            lock (_duplicatedRoutes)
+            {
+                _duplicatedRoutes.Add(type, lcids.ToArray());
+            }
+        }
+
+        public bool IsDuplicatedRoute(Type type, int lcid)
+        {
+            lock (_duplicatedRoutes)
+            {
+                return _duplicatedRoutes.ContainsKey(type) && _duplicatedRoutes[type].Contains(lcid);
+            }
         }
     }
 }
