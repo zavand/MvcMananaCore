@@ -1,22 +1,19 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 
 namespace Zavand.MvcMananaCore
 {
     public interface IBaseRoute
     {
-        string Locale { get; set; }
         string Controller { get; set; }
         string Action { get; set; }
         string Area { get; set; }
         string GetName();
         string GetNameLocalized();
         string GetUrl();
-        string GetUrlLocalized();
         object GetDefaults();
         object GetConstraints();
-        object GetConstraintsLocalized(string[] locales = null);
         string[] GetNamespaces();
         void FollowContext(IBaseRoute r);
         void MakeTheSameAs(IBaseRoute r);
@@ -30,14 +27,9 @@ namespace Zavand.MvcMananaCore
         IBaseRoute Clone();
         IBaseRoute GetParentRoute();
         void SetParentRoute(IBaseRoute parentRoute);
-        string GetRouteLocale();
-        void SetRouteLocale(string routeLocale);
-        string GetRouteLocaleFromRouteName(string routeName);
-        void ChangeRouteLocale(string routeLocale);
-        string[] GetAllRouteLocales();
+
         string GetAnchor();
         void SetAnchor(string anchor);
-
 
         /// <summary>
         /// Adds query param.
@@ -60,9 +52,9 @@ namespace Zavand.MvcMananaCore
         void AddQueryParamWithoutValue(string name);
         void RemoveQueryParamWithoutValue(string name);
         bool GetQueryParamWithoutValue(string name);
-        // string[] GetAllPossibleQueryParamsWithoutValue();
-
         void SetQueryParams(IQueryCollection q);
         string GetQueryString();
+
+        void Map(IEndpointRouteBuilder endpoints);
     }
 }

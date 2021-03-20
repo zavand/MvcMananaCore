@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Web;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 
 namespace Zavand.MvcMananaCore
 {
@@ -22,9 +23,8 @@ namespace Zavand.MvcMananaCore
 
         private IBaseRoute _parentRoute;
         private string _anchor;
-        // private IQueryCollection _queryParams = new QueryCollection();
-        private readonly Dictionary<string, List<string>> _queryParams = new Dictionary<string, List<string>>();
-        private readonly HashSet<string> _queryParamsWithoutValue = new HashSet<string>();
+        private readonly Dictionary<string, List<string>> _queryParams = new();
+        private readonly HashSet<string> _queryParamsWithoutValue = new();
 
         public virtual void AddQueryParam(string name, string value)
         {
@@ -111,30 +111,16 @@ namespace Zavand.MvcMananaCore
             );
         }
 
-        private string _routeLocale = "";
-        public virtual string GetRouteLocale()
+        public virtual void Map(IEndpointRouteBuilder endpoints)
         {
-            return _routeLocale;
-        }
-
-        public void SetRouteLocale(string routeLocale)
-        {
-            _routeLocale = routeLocale;
-        }
-
-        public virtual void ChangeRouteLocale(string routeLocale)
-        {
-            var all = GetAllRouteLocales();
-            if (all == null)
-                return;
-            if (!all.Contains(routeLocale))
-                return;
-            _routeLocale = routeLocale;
-        }
-
-        public virtual string[] GetAllRouteLocales()
-        {
-            return null;
+            if (!String.IsNullOrEmpty(Area))
+            {
+                endpoints.MapAreaControllerRoute(GetName(), Area, GetUrl(), GetDefaults(), GetConstraints());
+            }
+            else
+            {
+                endpoints.MapControllerRoute(GetName(), GetUrl(), GetDefaults(), GetConstraints());
+            }
         }
 
         public string GetAnchor()
@@ -145,16 +131,6 @@ namespace Zavand.MvcMananaCore
         public void SetAnchor(string anchor)
         {
             _anchor = anchor;
-        }
-
-        public virtual string[] GetSupportedRouteLocales()
-        {
-            return new string[0];
-        }
-
-        public virtual string GetDefaultRouteLocale()
-        {
-            return String.Empty;
         }
 
         public enum UrlProtocol
@@ -169,7 +145,6 @@ namespace Zavand.MvcMananaCore
             Ftps
         }
 
-        public string Locale { get; set; }
         public string Controller { get; set; }
         public string Action { get; set; }
         public string Area { get; set; }
@@ -232,15 +207,7 @@ namespace Zavand.MvcMananaCore
         }
         public virtual string GetName()
         {
-            return $"Route_{Area}_{Controller}_{Action}_rl[{_routeLocale}]";
-        }
-
-        public string GetRouteLocaleFromRouteName(string routeName)
-        {
-            var m = Regex.Match(routeName, @"rl\[(?<routeLocale>.+)\]");
-            return m.Success
-                ? m.Groups["routeLocale"].Value
-                : "";
+            return $"Route_{Area}_{Controller}_{Action}";
         }
 
         public virtual string GetNameLocalized()
@@ -285,12 +252,6 @@ namespace Zavand.MvcMananaCore
             return url;
         }
 
-        public virtual string GetUrlLocalized()
-        {
-            var url = GetUrl();
-            return "{locale}" + (String.IsNullOrEmpty(url) ? "" : $"/{url}");
-        }
-
         public virtual object GetDefaults()
         {
             return String.IsNullOrEmpty(Area)
@@ -312,11 +273,6 @@ namespace Zavand.MvcMananaCore
             return null;
         }
 
-        public virtual object GetConstraintsLocalized(string[] locales = null)
-        {
-            return null;
-        }
-
         public virtual string[] GetNamespaces()
         {
             return null;
@@ -332,7 +288,6 @@ namespace Zavand.MvcMananaCore
         /// <param name="r"></param>
         public virtual void FollowContext(IBaseRoute r)
         {
-            Locale = r.Locale;
         }
         /// <summary>
         /// This method is used by extension methods to create the clone of current route
@@ -375,20 +330,12 @@ namespace Zavand.MvcMananaCore
             _parentRoute = parentRoute;
         }
 
-        public virtual Dictionary<string, string> GetLocalizedUrlPerLocale()
-        {
-            return null;
-        }
-
         /// <summary>
         /// Override this method to properly make current route the same as provided route.
         /// </summary>
         /// <param name="r"></param>
         public virtual void MakeTheSameAs(IBaseRoute r)
         {
-            Locale = r.Locale;
-            ChangeRouteLocale(r.GetRouteLocale());
-
             SetAnchor(r.GetAnchor());
 
             if (r is IPageableRoute o2 && this is IPageableRoute o1)
