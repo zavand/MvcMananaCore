@@ -13,6 +13,7 @@
             if (mFrom == null || mTo == null)
                 return;
 
+            ((IBaseModel<TRoute>) mFrom).CopyTo(mTo);
             ((IPageable) mFrom).CopyTo(mTo);
 
             mTo.Total = mFrom.Total;
