@@ -11,6 +11,9 @@ namespace Zavand.MvcMananaCore
     {
         public static T[] ToArraySafely<T>(this IEnumerable<T> collection)
         {
+            if (collection == null)
+                return Array.Empty<T>();
+
             return collection as T[] ?? collection.ToArray();
         }
 
