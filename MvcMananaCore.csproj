@@ -6,6 +6,11 @@
     <RootNamespace>Zavand.MvcMananaCore</RootNamespace>
     <Version>1.0.2</Version>
     <OutputType>Library</OutputType>
+    <PackageId>MvcMananaCore</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Zavand</Authors>
+    <Company></Company>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
