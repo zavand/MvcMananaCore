@@ -254,15 +254,15 @@ namespace Zavand.MvcMananaCore
             return new MvcForm(h.ViewContext, NullHtmlEncoder.Default);
         }
 
-        public static MvcForm BeginFormFileUpload(this IHtmlHelper h, IUrlHelper urlHelper, IHtmlGenerator htmlGenerator, IBaseRoute currentRoute, IBaseRoute newRoute = null, FormMethod formMethod = FormMethod.Post, object htmlAttributes = null)
+        public static MvcForm BeginFormFileUpload(this IHtmlHelper h, IUrlHelper urlHelper, IHtmlGenerator htmlGenerator, IBaseRoute currentRoute, IBaseRoute newRoute = null, FormMethod formMethod = FormMethod.Post, object htmlAttributes = null, Action<IBaseRoute> postRouting = null)
         {
             var rv = new RouteValueDictionary(htmlAttributes);
             if (!rv.ContainsKey("enctype"))
             {
                 rv.Add("enctype", "multipart/form-data");
             }
-
-            return h.BeginForm(urlHelper, htmlGenerator, currentRoute, newRoute, htmlAttributes: rv);
+            
+            return h.BeginForm(urlHelper, htmlGenerator, currentRoute, newRoute, htmlAttributes: rv, postRouting: postRouting);
         }
 
         public static void MapControllerRoute<TRoute>(this IEndpointRouteBuilder endpoints) where TRoute:IBaseRoute, new()
