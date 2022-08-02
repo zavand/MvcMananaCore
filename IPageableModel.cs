@@ -6,17 +6,17 @@
         ulong Total { get; set; }
     }
 
-    public static class PageableModelExtensions
-    {
-        public static void CopyTo<TRoute>(this IPageableModel<TRoute> mFrom, IPageableModel<TRoute> mTo) where TRoute : IBaseRoute
-        {
-            if (mFrom == null || mTo == null)
-                return;
-
-            ((IBaseModel<TRoute>) mFrom).CopyTo(mTo);
-            ((IPageable) mFrom).CopyTo(mTo);
-
-            mTo.Total = mFrom.Total;
-        }
-    }
+    // public static class PageableModelExtensions
+    // {
+    //     public static void CopyTo<TRoute>(this IPageableModel<TRoute> mFrom, IPageableModel<TRoute> mTo) where TRoute : IBaseRoute
+    //     {
+    //         if (mFrom == null || mTo == null)
+    //             return;
+    //
+    //         // ((IBaseModel<TRoute>) mFrom).CopyTo(mTo);
+    //         ((IPageable) mFrom).CopyTo(mTo);
+    //
+    //         mTo.Total = mFrom.Total;
+    //     }
+    // }
 }

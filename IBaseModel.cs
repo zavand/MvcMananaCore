@@ -22,16 +22,16 @@ namespace Zavand.MvcMananaCore
         void SetUrlHelper(IUrlHelper urlHelper);
     }
 
-    public static class BaseModelExtensions
-    {
-        public static void CopyTo<TRoute>(this IBaseModel<TRoute> mFrom, IBaseModel<TRoute> mTo) where TRoute : IBaseRoute
-        {
-            if (mFrom == null || mTo == null)
-                return;
-
-            mTo.Culture = mFrom.Culture;
-            mTo.SetRoute(mFrom.GetRoute());
-            mTo.SetUrlHelper(mFrom.GetUrlHelper());
-        }
-    }
+    // public static class BaseModelExtensions
+    // {
+    //     public static void CopyTo<TRoute>(this IBaseModel<TRoute> mFrom, IBaseModel<TRoute> mTo) where TRoute : IBaseRoute
+    //     {
+    //         if (mFrom == null || mTo == null)
+    //             return;
+    //
+    //         mTo.Culture = mFrom.Culture;
+    //         mTo.SetRoute(mFrom.GetRoute());
+    //         mTo.SetUrlHelper(mFrom.GetUrlHelper());
+    //     }
+    // }
 }
