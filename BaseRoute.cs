@@ -23,8 +23,8 @@ namespace Zavand.MvcMananaCore
 
         private IBaseRoute _parentRoute;
         private string _anchor;
-        private readonly Dictionary<string, List<string>> _queryParams = new();
-        private readonly HashSet<string> _queryParamsWithoutValue = new();
+        protected readonly Dictionary<string, List<string>> _queryParams = new();
+        protected readonly HashSet<string> _queryParamsWithoutValue = new();
 
         public virtual void AddQueryParam(string name, string value)
         {
